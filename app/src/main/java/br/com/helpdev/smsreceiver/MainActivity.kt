@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         requestSmsPermission()
-        registerSmsReceiver()
+        //registerSmsReceiver()
         checkAndAskAcc()
     }
 
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
-        unregisterMyReceiver();
+        //unregisterMyReceiver();
     }
 
     private fun unregisterMyReceiver() {

