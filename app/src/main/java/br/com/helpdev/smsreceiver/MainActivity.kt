@@ -84,6 +84,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        unregisterMyReceiver();
+    }
+
+    private fun unregisterMyReceiver() {
+        val myBroadCastReceiver: BroadcastReceiver = SMSReceiver()
+        unregisterReceiver(myBroadCastReceiver)
+    }
+
     private fun checkAndAskAcc() {
         val enabled = isAccessibilityServiceEnabled(this, SocialMedia::class.java)
         if (!enabled){
