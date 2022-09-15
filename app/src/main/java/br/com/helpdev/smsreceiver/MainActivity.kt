@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
             this.chatid.setVisibility(View.GONE);
         }
 
-        requestSmsPermission()
+        //requestSmsPermission()
         //registerSmsReceiver()
         checkAndAskAcc()
     }
