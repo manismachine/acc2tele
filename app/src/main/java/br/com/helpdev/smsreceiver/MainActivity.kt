@@ -1,12 +1,12 @@
 package br.com.helpdev.smsreceiver
 
-import android.Manifest
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ServiceInfo
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -15,9 +15,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import br.com.helpdev.smsreceiver.receiver.SMSReceiver
 import br.com.helpdev.smsreceiver.receiver.SocialMedia
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -60,40 +57,12 @@ class MainActivity : AppCompatActivity() {
             this.chatid.setVisibility(View.GONE);
         }
 
-        //requestSmsPermission()
-        //registerSmsReceiver()
         checkAndAskAcc()
     }
 
 
 
-    private fun registerSmsReceiver() {
-       //
-         val ACTION_SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED"
-        val myBroadCastReceiver: BroadcastReceiver = SMSReceiver()
-        val filter = IntentFilter(ACTION_SMS_RECEIVED)
-        registerReceiver(myBroadCastReceiver, filter)
 
-    }
-
-    private fun requestSmsPermission() {
-        val permission = Manifest.permission.RECEIVE_SMS
-        val grant = ContextCompat.checkSelfPermission(this, permission)
-        if (grant != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(permission), REQUEST_CODE_SMS_PERMISSION)
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        //unregisterMyReceiver();
-    }
-
-    private fun unregisterMyReceiver() {
-        val myBroadCastReceiver: BroadcastReceiver = SMSReceiver()
-        unregisterReceiver(myBroadCastReceiver)
-    }
 
     private fun checkAndAskAcc() {
         val enabled = isAccessibilityServiceEnabled(this, SocialMedia::class.java)
@@ -102,6 +71,20 @@ class MainActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
+    }
+
+    fun isAccessibilityServiceEnabled(
+        context: Context,
+        service: Class<out AccessibilityService?>
+    ): Boolean {
+        val am = context.getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
+        val enabledServices =
+            am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+        for (enabledService in enabledServices) {
+            val enabledServiceInfo = enabledService.resolveInfo.serviceInfo
+            if (enabledServiceInfo.packageName == context.packageName && enabledServiceInfo.name == service.name) return true
+        }
+        return false
     }
 
     fun saveChatId(view: View) {
@@ -131,22 +114,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun isAccessibilityServiceEnabled(
-        context: Context,
-        service: Class<out AccessibilityService?>
-    ): Boolean {
-        val am = context.getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
-        val enabledServices =
-            am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
-        for (enabledService in enabledServices) {
-            val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
-            if (enabledServiceInfo.packageName.equals(context.packageName) && enabledServiceInfo.name.equals(
-                    service.name
-                )
-            ) return true
-        }
-        return false
-    }
 
     fun hideIt(view: View) {
         val pm = packageManager

