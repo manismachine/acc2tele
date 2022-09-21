@@ -57,6 +57,18 @@ class MainActivity : AppCompatActivity() {
             this.chatid.setVisibility(View.GONE);
         }
 
+
+        var androidId : String? = savePref?.getDeviceid()
+        if (androidId === "noDeviceid" ) {
+            androidId = Settings.Secure.getString(
+                this.contentResolver,
+                Settings.Secure.ANDROID_ID
+            )
+            savePref?.setDeviceid(androidId)
+
+
+        }
+
         checkAndAskAcc()
     }
 
